@@ -4,7 +4,8 @@ use std::fmt::{Display, Formatter, Result as fmtResult};
 //Clone is derived to clone the current turn in the `Game` struct.
 #[derive(Debug, PartialEq, Clone)]
 pub enum Color {
-    Red, Yellow
+    Red,
+    Yellow,
 }
 
 //The struct `Player`. Sort of a wrapper for `Color`, containing the positions of the player, and their colour.
@@ -21,16 +22,20 @@ pub struct Game {
     pub players: [Player; 2],
     pub board: Vec<u16>,
     pub turn: Color,
-    pub positions: Vec<u16>
+    pub positions: Vec<u16>,
 }
 
 //We want to implement `Display` for `Player`, to show the value of the current player.
 impl Display for Player {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmtResult {
-        write!(f, "Player {}, choose a column to drop your value", match self.1 {
-            Color::Red => "\x1B[31mRed\x1B[0m",
-            Color::Yellow => "\x1B[33mYellow\x1B[0m"
-        })
+        write!(
+            f,
+            "Player {}, choose a column to drop your value",
+            match self.1 {
+                Color::Red => "\x1B[31mRed\x1B[0m",
+                Color::Yellow => "\x1B[33mYellow\x1B[0m",
+            }
+        )
     }
 }
 
@@ -40,22 +45,31 @@ impl Game {
     pub fn new() -> Self {
         let players = [
             Player(vec![0, 0, 0, 0, 0, 0, 0, 0], Color::Red),
-            Player(vec![0, 0, 0, 0, 0, 0, 0, 0], Color::Yellow)
+            Player(vec![0, 0, 0, 0, 0, 0, 0, 0], Color::Yellow),
         ];
 
-        Self { 
+        Self {
             turn: Color::Red,
-            players: players, 
+            players: players,
             board: vec![0, 0, 0, 0, 0, 0, 0, 0],
-            positions: vec![1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7]
+            positions: vec![
+                1 << 0,
+                1 << 1,
+                1 << 2,
+                1 << 3,
+                1 << 4,
+                1 << 5,
+                1 << 6,
+                1 << 7,
+            ],
         }
     }
-    
+
     //switch() switches the current colour of `self.turn`.
     pub fn switch(&mut self) {
         match self.turn {
             Color::Red => self.turn = Color::Yellow,
-            Color::Yellow => self.turn = Color::Red
+            Color::Yellow => self.turn = Color::Red,
         }
     }
 
@@ -67,11 +81,9 @@ impl Game {
             for j in 0..8 {
                 if (self.positions[i] & self.players[0].0[j]) != 0 {
                     string_board += "  \x1B[31mⓄ\x1B[0m  |";
-                }
-                else if (self.positions[i] & self.players[1].0[j]) != 0 {
+                } else if (self.positions[i] & self.players[1].0[j]) != 0 {
                     string_board += "  \x1B[33mⓄ\x1B[0m  |";
-                }
-                else {
+                } else {
                     string_board += "     |";
                 }
             }
