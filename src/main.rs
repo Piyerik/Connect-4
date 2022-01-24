@@ -39,18 +39,11 @@ fn main() {
             continue;
         }
 
-        let mut next_left: u16 = 0;
-        for x in 0..8 {
-            if game.board[i] >> x == 0 {
-                next_left = 1 << x;
-                break;
-            }
-        } 
-
-        //println!("{}", game.create_board());
+        // find the next bit to the left
+        let next_left = if game.board[i] == 0 { 1 } else { (((game.board[i] ^ !game.board[i]) << 1) as i16).abs() as u16 };
 
         current_player.0[i] += next_left;
-        game.board[i] += 1 + game.board[i];
+        game.board[i] += next_left;
 
         if won(&current_player.0) {
             print!("\x1B[2J\x1B[1;1H\n");
