@@ -30,7 +30,7 @@ impl Display for Player {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmtResult {
         write!(
             f,
-            "Player {}, choose a column to drop your value",
+            "{}",
             match self.1 {
                 Color::Red => "\x1B[31mRed\x1B[0m",
                 Color::Yellow => "\x1B[33mYellow\x1B[0m",

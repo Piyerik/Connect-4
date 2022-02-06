@@ -27,7 +27,7 @@ fn main() {
         let turn = game.turn.clone();
         let current_player = get_player(&mut game.players, turn);
 
-        println!("{}", current_player);
+        println!("Player {}, it's your turn.", current_player);
 
         let mut column = String::new();
         io::stdin().read_line(&mut column).unwrap();
@@ -46,8 +46,6 @@ fn main() {
                 break;
             }
         } 
-
-        //println!("{}", game.create_board());
 
         current_player.0[i] += next_left;
         game.board[i] += 1 + game.board[i];
