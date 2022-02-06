@@ -2,7 +2,7 @@ mod game;
 
 use std::io;
 
-use game::{Color, Game, Player};
+use game::{Game, Color, Player};
 
 //This function is to get the current player using a mutable Player slice.
 fn get_player(players: &mut [Player], color: Color) -> &mut Player {
@@ -34,22 +34,23 @@ fn main() {
 
         let i = (column.trim().parse::<u16>().unwrap() - 1) as usize;
 
-        if (game.board[i] & game.positions.iter().sum::<u16>())
-            == game.positions.iter().sum::<u16>()
-        {
+        if (game.board[i] & game.positions.iter().sum::<u16>()) == game.positions.iter().sum::<u16>() {
             println!("Cannot stack, since the column is full.");
             continue;
         }
 
-        // find the next bit to the left
-        let next_left = if game.board[i] == 0 {
-            1
-        } else {
-            (((game.board[i] ^ !game.board[i]) << 1) as i16).abs() as u16
-        };
+        let mut next_left: u16 = 0;
+        for x in 0..8 {
+            if game.board[i] >> x == 0 {
+                next_left = 1 << x;
+                break;
+            }
+        } 
+
+        //println!("{}", game.create_board());
 
         current_player.0[i] += next_left;
-        game.board[i] += next_left;
+        game.board[i] += 1 + game.board[i];
 
         if won(&current_player.0) {
             print!("\x1B[2J\x1B[1;1H\n");
@@ -79,23 +80,12 @@ fn won(color: &Vec<u16>) -> bool {
         for j in 0..4 {
             if (color[i] >> j) == 15 {
                 return true;
-            } else if i < 5
-                && ((color[i] >> j) & 1) != 0
-                && ((color[i + 1] >> j) & 1) != 0
-                && ((color[i + 2] >> j) & 1) != 0
-                && ((color[i + 3] >> j) & 1) != 0
-            {
+            }
+            else if i < 5 && ((color[i] >> j) & 1) != 0 && ((color[i + 1] >> j) & 1) != 0 && ((color[i + 2] >> j) & 1) != 0 && ((color[i + 3] >> j) & 1) != 0 {
                 return true;
-            } else if i < 5
-                && (((color[i] >> j) & 1) != 0
-                    && ((color[i + 1] >> j) & 2) != 0
-                    && ((color[i + 2] >> j) & 4) != 0
-                    && ((color[i + 3] >> j) & 8) != 0
-                    || ((color[i] >> j) & 8) != 0
-                        && ((color[i + 1] >> j) & 4) != 0
-                        && ((color[i + 2] >> j) & 2) != 0
-                        && ((color[i + 3] >> j) & 1) != 0)
-            {
+            }
+            else if i < 5 && (((color[i] >> j) & 1) != 0 && ((color[i + 1] >> j) & 2) != 0 && ((color[i + 2] >> j) & 4) != 0 && ((color[i + 3] >> j) & 8) != 0 ||
+            ((color[i] >> j) & 8) != 0 && ((color[i + 1] >> j) & 4) != 0 && ((color[i + 2] >> j) & 2) != 0 && ((color[i + 3] >> j) & 1) != 0) {
                 return true;
             }
         }
@@ -105,10 +95,8 @@ fn won(color: &Vec<u16>) -> bool {
 }
 
 fn tie(positions: &Vec<u16>, board: &Vec<u16>) -> bool {
-    if board
-        .iter()
-        .all(|column| *column == positions.iter().sum::<u16>())
-    {
+
+    if board.iter().all(|column| *column == positions.iter().sum::<u16>()) {
         return true;
     }
 
